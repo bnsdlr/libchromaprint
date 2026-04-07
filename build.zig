@@ -33,7 +33,7 @@ pub fn build(b: *std.Build) void {
         .TESTS_DIR = "/dev/null",
         .USE_SWRESAMPLE = 1,
         .USE_AVRESAMPLE = 1,
-        .USE_INTERNAL_AVRESAMPLE = null,
+        .USE_INTERNAL_AVRESAMPLE = 1,
         .USE_AVFFT = 1,
         .USE_FFTW3 = null,
         .USE_FFTW3F = null,
