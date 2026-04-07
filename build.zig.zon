@@ -1,14 +1,13 @@
 .{
-    .name = "libchromaprint",
+    .name = .libchromaprint,
     .version = "1.5.3-5",
-
+    .fingerprint = 0x1c39d2ba58258a3b,
     .dependencies = .{
         .ffmpeg = .{
-            .url = "https://github.com/andrewrk/ffmpeg/archive/refs/tags/6.1.1-2.tar.gz",
-            .hash = "1220c9efb7f1e554a922a2f4f151c07b56571a254713006924dea17361c7471ba320",
+            .url = "git+https://github.com/allyourcodebase/ffmpeg#b896c2c6eb8c39286c0ec516d67c2524a90c9efd",
+            .hash = "ffmpeg-7.0.1-10-zT7QAyaLCAQsc93Y8RSff4USPYdy4Q6ycPvKUyd0V-O7",
         },
     },
-
     .paths = .{
         "build.zig",
         "build.zig.zon",

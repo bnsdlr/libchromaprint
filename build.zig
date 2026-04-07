@@ -9,17 +9,21 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    const lib = b.addStaticLibrary(.{
+    const lib = b.addLibrary(.{
         .name = "chromaprint",
-        .target = target,
-        .optimize = optimize,
+        .linkage = .static,
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+            .link_libcpp = true,
+        }),
     });
-    lib.linkLibrary(ffmpeg_dep.artifact("ffmpeg"));
-    lib.linkLibC();
-    lib.linkLibCpp();
-    lib.addIncludePath(.{ .path = "src" });
-    lib.addConfigHeader(b.addConfigHeader(.{
-        .style = .{ .cmake = .{ .path = "config.h.in" } },
+
+    lib.root_module.linkLibrary(ffmpeg_dep.artifact("ffmpeg"));
+    lib.root_module.addIncludePath(b.path("src"));
+    lib.root_module.addConfigHeader(b.addConfigHeader(.{
+        .style = .{ .cmake = b.path("config.h.in") },
     }, .{
         .HAVE_ROUND = 1,
         .HAVE_LRINTF = 1,
@@ -36,7 +40,7 @@ pub fn build(b: *std.Build) void {
         .USE_VDSP = null,
         .USE_KISSFFT = null,
     }));
-    lib.addCSourceFiles(.{
+    lib.root_module.addCSourceFiles(.{
         .files = &.{
             "src/audio_processor.cpp",
             "src/chroma.cpp",
@@ -68,7 +72,7 @@ pub fn build(b: *std.Build) void {
             "-DCHROMAPRINT_NODLL",
         },
     });
-    lib.addCSourceFiles(.{
+    lib.root_module.addCSourceFiles(.{
         .files = &.{
             "src/avresample/resample2.c",
         },
@@ -82,6 +86,6 @@ pub fn build(b: *std.Build) void {
             "-D_GNU_SOURCE",
         },
     });
-    lib.installHeader("src/chromaprint.h", "chromaprint.h");
+    lib.installHeader(b.path("src/chromaprint.h"), "chromaprint.h");
     b.installArtifact(lib);
 }
