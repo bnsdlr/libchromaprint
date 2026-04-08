@@ -20,8 +20,12 @@ pub fn build(b: *std.Build) void {
         }),
     });
 
-    lib.root_module.linkLibrary(ffmpeg_dep.artifact("ffmpeg"));
+    const ffmpeg_artifact = ffmpeg_dep.artifact("ffmpeg");
+    // lib.root_module.addIncludePath(ffmpeg_artifact.getEmittedIncludeTree());
+    lib.root_module.linkLibrary(ffmpeg_artifact);
+
     lib.root_module.addIncludePath(b.path("src"));
+
     lib.root_module.addConfigHeader(b.addConfigHeader(.{
         .style = .{ .cmake = b.path("config.h.in") },
     }, .{
@@ -40,6 +44,9 @@ pub fn build(b: *std.Build) void {
         .USE_VDSP = null,
         .USE_KISSFFT = null,
     }));
+    lib.root_module.addIncludePath(b.path("src/utils"));
+    lib.root_module.addIncludePath(b.path("zig-pkg/ffmpeg-7.0.1-10-zT7QAyaLCAQsc93Y8RSff4USPYdy4Q6ycPvKUyd0V-O7/"));
+
     lib.root_module.addCSourceFiles(.{
         .files = &.{
             "src/audio_processor.cpp",
@@ -60,9 +67,11 @@ pub fn build(b: *std.Build) void {
             "src/utils/base64.cpp",
             "src/chromaprint.cpp",
             "src/fft_lib_avfft.cpp",
+            "src/audio/impl.cpp",
         },
         .flags = &.{
             "-std=c++11",
+            "-Wno-deprecated-declarations",
             "-fno-rtti",
             "-fno-exceptions",
             "-DHAVE_CONFIG_H",

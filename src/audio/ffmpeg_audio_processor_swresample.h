@@ -6,6 +6,7 @@
 
 extern "C" {
 #include <libswresample/swresample.h>
+#include <libavutil/opt.h>
 }
 
 namespace chromaprint {
