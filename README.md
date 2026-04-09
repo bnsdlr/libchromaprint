@@ -2,6 +2,30 @@ This is a fork of [chromaprint](https://acoustid.org/chromaprint), packaged for
 Zig. Unnecessary files have been deleted, and the build system has been
 replaced with `build.zig`.
 
+
+# Usage
+
+```zig
+const wrapper_mod = b.dependency("libchromaprint", .{
+    .target = target,
+    .optimize = optimize,
+}).module("wrapper");
+mod.addImport("chromaprint", wrapper_mod);
+```
+
+Then in your `root.zig`:
+
+```zig
+const chromaprint = @import("chromaprint");
+const calcFingerprint = chromaprint.calcFingerprint;
+const chromaprintDealloc = chromaprint.chromaprintDealloc;
+
+const result = try calcFingerprint("path/to/audio.file", &.{});
+defer chromaprintDealloc(@constCast(result.fingerprint.?.ptr));
+
+std.debug.print("fp: {?s}\nduration: {f}\n", .{result.fingerprint, result.duration});
+```
+
 Original README follows:
 
 --------------------------------------------------------------------------------
