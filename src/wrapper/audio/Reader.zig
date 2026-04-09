@@ -334,13 +334,14 @@ pub fn getChannels(self: *const Self) c_int {
 pub fn getDuration(self: *const Self) i64 {
     if (self.format_ctx != null and self.stream_index >= 0) {
         // const stream: *av.Stream = fmt_ctx.streams[self.stream_index];
-        const stream: [*c]c.AVStream = self.format_ctx.?.streams[self.stream_index];
+        const stream: ?*c.AVStream = self.format_ctx.?.streams[@intCast(self.stream_index)];
+        std.debug.assert(stream != null);
         // if (stream.duration != av.NOPTS_VALUE) {
-        if (stream.duration != c.AV_NOPTS_VALUE) {
-            return 1000 * @as(i64, @intCast(stream.time_base.num)) * stream.duration / @as(i64, @intCast(stream.time_base.den));
+        if (stream.?.duration != c.AV_NOPTS_VALUE) {
+            return 1000 * @divTrunc(@as(i64, @intCast(stream.?.time_base.num)) * stream.?.duration, @as(i64, @intCast(stream.?.time_base.den)));
         // } else if (fmt_ctx.duration != c.NOPTS_VALUE) {
         } else if (self.format_ctx.?.duration != c.AV_NOPTS_VALUE) {
-            return 1000 * self.format_ctx.?.duration / @as(i64, @intCast(c.AV_TIME_BASE));
+            return 1000 * @divTrunc(self.format_ctx.?.duration, @as(i64, @intCast(c.AV_TIME_BASE)));
         }
     }
 	return -1;

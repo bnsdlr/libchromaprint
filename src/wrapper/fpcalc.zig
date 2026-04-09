@@ -36,11 +36,16 @@ pub const FingerprintCalcError = error{
     DidNotGetResults,
 };
 
+pub const FingerprintResult = struct {
+    duration: std.Io.Duration = .fromNanoseconds(0),
+    fingerprint: ?[]const u8 = null,
+};
+
 /// The returned slice needs to be freed with `chromaprint.dealloc`.
 pub fn calcFingerprint(
     file_name: [:0]const u8,
-    opts: FingerprintCalcOpts
-) FingerprintCalcError!?[]const u8 {
+    opts: *const FingerprintCalcOpts
+) FingerprintCalcError!FingerprintResult{
     var reader: Reader = .init();
     defer reader.deinit();
     if (opts.input_format) |input_format| {
@@ -83,8 +88,8 @@ pub fn processFile(
     ctx: *ChromaprintContext,
     reader: *Reader,
     ofile_name: [:0]const u8,
-    opts: FingerprintCalcOpts,
-) FingerprintCalcError!?[]const u8 {
+    opts: *const FingerprintCalcOpts,
+) FingerprintCalcError!FingerprintResult {
     var file_name: [:0]const u8 = ofile_name;
 
     if (mem.eql(u8, file_name, "-")) {
@@ -233,11 +238,11 @@ pub fn processFile(
         }
     }
 
-    return getResult(ctx, first_chunk);
+    return getResult(ctx, reader, opts, first_chunk);
 }
 
 /// The returned slice needs to be freed with `chromaprint.dealloc`.
-pub fn getResult(ctx: *ChromaprintContext, first: bool) FingerprintCalcError!?[]const u8 {
+pub fn getResult(ctx: *ChromaprintContext, reader: *Reader, opts: *const FingerprintCalcOpts, first: bool) FingerprintCalcError!FingerprintResult {
     var fp: [*c]u8 = null;
     var size: c_int = -1;
     ctx.getRawFingerprintSize(&size) catch |err| {
@@ -250,7 +255,7 @@ pub fn getResult(ctx: *ChromaprintContext, first: bool) FingerprintCalcError!?[]
             log.err("Empty fingerprint\n", .{});
             return error.EmptyFingerprint;
         }
-        return null;
+        return .{};
     }
 
     ctx.getFingerprint(&fp) catch |err| {
@@ -258,6 +263,20 @@ pub fn getResult(ctx: *ChromaprintContext, first: bool) FingerprintCalcError!?[]
         return err;
     };
 
-    return mem.sliceTo(fp, 0);
+    var duration: i64 = 0;
+
+    if (opts.max_chunk_duration == 0) {
+		duration = reader.getDuration();
+		if (duration < 0.0) {
+			duration = 0.0;
+		} else {
+			duration = @divTrunc(duration, 1000);
+		}
+	}
+
+    return FingerprintResult{
+        .fingerprint = mem.sliceTo(fp, 0),
+        .duration = .fromSeconds(duration),
+    };
 }
 

@@ -1,9 +1,7 @@
 const std = @import("std");
 const audio = @import("audio.zig");
 
-pub const c = @cImport({
-    @cInclude("chromaprint.h");
-});
+const c = @import("root.zig").c;
 
 pub const Error = error{ChromaprintError};
 pub const Alogrithm = enum(c_int) {

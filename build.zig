@@ -106,4 +106,11 @@ pub fn build(b: *std.Build) void {
 
     mod.linkLibrary(lib);
     mod.addIncludePath(ffmpeg_artifact.getEmittedIncludeTree());
+
+    const mod_test = b.addRunArtifact(b.addTest(.{
+        .root_module = mod,
+    }));
+
+    const test_step = b.step("test", "test the wrapper");
+    test_step.dependOn(&mod_test.step);
 }
