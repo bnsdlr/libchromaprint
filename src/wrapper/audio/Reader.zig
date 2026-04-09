@@ -5,10 +5,9 @@ const std = @import("std");
 const mem = std.mem;
 
 const mod = @import("../root.zig");
-// const av = mod.av;
 const c = mod.c;
 
-const log = std.log.scoped(.audio_reader);
+pub const log = std.log.scoped(.audio_reader);
 
 const Processor = @import("Processor.zig");
 

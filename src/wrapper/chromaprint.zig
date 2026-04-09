@@ -1,8 +1,6 @@
 const std = @import("std");
 const audio = @import("audio.zig");
 
-const Decoder = audio.Decoder;
-
 pub const c = @cImport({
     @cInclude("chromaprint.h");
 });

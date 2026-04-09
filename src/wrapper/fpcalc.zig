@@ -8,7 +8,7 @@ const ChromaprintContext = chromaprint.Context;
 const audio = @import("audio.zig");
 const Reader = audio.Reader;
 
-const log = std.log.scoped(.fpcalc);
+pub const log = std.log.scoped(.fpcalc);
 
 pub const FingerprintCalcOpts = struct {
     input_format: ?[:0]const u8 = null,

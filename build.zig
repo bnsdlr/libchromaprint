@@ -98,7 +98,7 @@ pub fn build(b: *std.Build) void {
     lib.installHeader(b.path("src/chromaprint.h"), "chromaprint.h");
     b.installArtifact(lib);
 
-    const mod = b.addModule("chromaprint_wrapper", .{
+    const mod = b.addModule("wrapper", .{
         .root_source_file = b.path("src/wrapper/root.zig"),
         .optimize = optimize,
         .target = target,
